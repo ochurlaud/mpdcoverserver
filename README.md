@@ -6,7 +6,7 @@ A simple HTTP server in python that when queried
 
 return the cover contained within the first music file from
 
-   <your_music_dir>/The Black Keys/Turn Blue/
+    <your_music_dir>/The Black Keys/Turn Blue/
 
 
 ## Try it
