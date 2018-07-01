@@ -7,7 +7,7 @@ setup(
     install_requires=['mutagen'],
     author="Olivier Churlaud",
     author_email="olivier@churlaud.com",
-    license="GPLv3",
+    license="MIT",
     keywords="mpd covers mutagen",
     description="Server that provides covers from the music files to MPD clients",
     scripts=["src/mpdcoverserver"],
