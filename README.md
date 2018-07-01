@@ -1,5 +1,14 @@
 # MPDCoverServer
 
+A simple HTTP server in python that when queried
+
+    GET /The%20Black%20Keys/Turn%20Blue/cover.jpg HTTP/1.1
+
+return the cover contained within the first music file from
+
+   <your_music_dir>/The Black Keys/Turn Blue/
+
+
 ## Try it
 
 Download this, customize `src/mpdcoverserer.conf', go to src and run `mpdcoverserver:
