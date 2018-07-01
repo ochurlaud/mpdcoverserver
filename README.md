@@ -8,20 +8,30 @@ return the cover contained within the first music file from
 
     <your_music_dir>/The Black Keys/Turn Blue/
 
-
-## Try it
-
-Download this, customize `src/mpdcoverserer.conf', go to src and run `mpdcoverserver:
+## Usage
 
 ```
-cd src
-./mpdcoverserver
-```
+usage: MPDCoverServer [-h] [--port PORT] MUSIC_DIR
+
+A simple HTTP server that serves covers from music files
+
+positional arguments:
+  MUSIC_DIR             the path to your music directory
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --port PORT, -p PORT  port to listen (default 8000)
+```                                                     
 
 ## Install
 
-To install the package, 2 steps are needed:
+To install the package, just use the `setup.py`:
 
-1) run `./setup.py install` to deploy `src/mpdcoverserver` as a script and `src/songconver` as lib.
-2) copy `src/mpdcoverserver.conf` to `/etc/`and `unitfile/mpdcoverserver.service` to `/usr/lib/systemd/system`
+```
+cd mpdcoverserver
+./setup.py install
+```
+
+You might want to run the server with systemd. A service unit file is in unitfile, to be copied to `/usr/lib/systemd/system/`
+
 

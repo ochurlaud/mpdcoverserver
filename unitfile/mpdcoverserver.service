@@ -4,8 +4,9 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 -u /usr/bin/mpdcoverserver
+ExecStart=/usr/bin/python3 -u /usr/bin/mpdcoverserver -p 8000 /var/lib/mpd/music
 StandardOutput=journal
+Environment="LANG=en_US.UTF-8"
 
 [Install]
 WantedBy=multi-user.target

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
+# coding=utf-8
 
-import configparser
+import argparse
 import os
 import http.server
 import socketserver
@@ -9,13 +10,8 @@ from urllib.parse import unquote
 from songcovers import getcover
 
 DEFAULT_PORT = 8000
-DEFAULT_MUSIC_DIR = "/var/lib/mpd/music"
-CONF_DIR = "/etc"
-CONF_FILE = "mpdcoverserver.conf"
 
 class MPDCoverHandler(http.server.SimpleHTTPRequestHandler):
-#    def __init__(self, request, client_address, server):
-#        http.server.SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def do_GET(self):
         # Need to remove the first /
@@ -44,36 +40,24 @@ class MPDCoverServer(socketserver.TCPServer):
         self.musicdir = music_dir
         socketserver.TCPServer.__init__(self, address, handler)
 
-def getconfig():
-    music_dir = DEFAULT_MUSIC_DIR
-    port = DEFAULT_PORT
 
-    config = configparser.ConfigParser()
-    
-    for loc in os.curdir, CONF_DIR:
-        configpath = os.path.join(loc, CONF_FILE)
-        if not os.path.isfile(configpath):
-            continue
-        print("Config: Found {}".format(configpath))
-        try: 
-            with open(configpath, 'r') as f:
-                config.read_file(f)
-        except IOError:
-            print("Config: Error while reading {}".format(configpath))
-    if 'Server' in config:
-        srv = config['Server']
-        port = srv.getint('port', DEFAULT_PORT)
-        music_dir = srv.get('musicdir', DEFAULT_MUSIC_DIR)
+def parseargs():
+    parser = argparse.ArgumentParser(
+            prog="MPDCoverServer",
+            description="A simple HTTP server that serves covers from music files")
 
-    return port, music_dir
+    parser.add_argument('--port', '-p', default=DEFAULT_PORT, type=int, help="port to listen (default {})".format(DEFAULT_PORT))
+    parser.add_argument('MUSIC_DIR', help="the path to your music directory")
+    args = parser.parse_args()
+    return args.port, args.MUSIC_DIR
 
 if __name__ == "__main__":
-    port, music_dir = getconfig()
+    port, musicdir = parseargs()
 
     Handler = MPDCoverHandler
     
-    with MPDCoverServer(("", port), Handler, music_dir) as httpd:
+    with MPDCoverServer(("", port), Handler, musicdir) as httpd:
         print("Serving at port", port)
-        print("Music folder is", music_dir)
+        print("Music folder is", musicdir)
         httpd.serve_forever()
 
