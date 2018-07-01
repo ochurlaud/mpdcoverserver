@@ -1,0 +1,79 @@
+#!/usr/bin/python3
+
+import configparser
+import os
+import http.server
+import socketserver
+from urllib.parse import unquote
+
+from songcovers import getcover
+
+DEFAULT_PORT = 8000
+DEFAULT_MUSIC_DIR = "/var/lib/mpd/music"
+CONF_DIR = "/etc"
+CONF_FILE = "mpdcoverserver.conf"
+
+class MPDCoverHandler(http.server.SimpleHTTPRequestHandler):
+#    def __init__(self, request, client_address, server):
+#        http.server.SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
+
+    def do_GET(self):
+        # Need to remove the first /
+        realpath = os.path.join(self.server.musicdir, unquote(self.path)[1:])
+        print("Try to get {}".format(realpath))
+        realpath = os.path.dirname(realpath)
+
+        try:
+            mime, data = getcover(realpath)
+        except Exception as e:
+            self. send_error(404, message="Exception raised during getcover: " + str(e))
+            return
+
+        if data is None:
+            self. send_error(404, message="No data returned from getcover")
+            return
+
+        self.send_response(200)
+        self.send_header("Content-type", mime)
+        self.send_header("Content-length", len(data))
+        self.end_headers()
+        self.wfile.write(data)
+
+class MPDCoverServer(socketserver.TCPServer):
+    def __init__(self, address, handler, music_dir):
+        self.musicdir = music_dir
+        socketserver.TCPServer.__init__(self, address, handler)
+
+def getconfig():
+    music_dir = DEFAULT_MUSIC_DIR
+    port = DEFAULT_PORT
+
+    config = configparser.ConfigParser()
+    
+    for loc in os.curdir, CONF_DIR:
+        configpath = os.path.join(loc, CONF_FILE)
+        if not os.path.isfile(configpath):
+            continue
+        print("Config: Found {}".format(configpath))
+        try: 
+            with open(configpath, 'r') as f:
+                config.read_file(f)
+        except IOError:
+            print("Config: Error while reading {}".format(configpath))
+    if 'Server' in config:
+        srv = config['Server']
+        port = srv.getint('port', DEFAULT_PORT)
+        music_dir = srv.get('musicdir', DEFAULT_MUSIC_DIR)
+
+    return port, music_dir
+
+if __name__ == "__main__":
+    port, music_dir = getconfig()
+
+    Handler = MPDCoverHandler
+    
+    with MPDCoverServer(("", port), Handler, music_dir) as httpd:
+        print("Serving at port", port)
+        print("Music folder is", music_dir)
+        httpd.serve_forever()
+

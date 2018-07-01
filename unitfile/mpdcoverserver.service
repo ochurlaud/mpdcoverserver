@@ -1,0 +1,11 @@
+[Unit]
+Description=a HTTP server for serving covers from music files
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -u /usr/bin/mpdcoverserver
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
