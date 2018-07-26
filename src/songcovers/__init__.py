@@ -40,7 +40,10 @@ def getcover(inputpath):
     song = mutagen.File(songpath)
     
     if type(song) is mutagen.mp3.MP3:
-        apic = song.tags.get('APIC:', None)
+        keys = [k for k in song.tags if 'APIC:' in k]
+        apic = None
+        if len(keys) > 0:
+            apic = song.tags.get(keys[0], None)
         if apic is not None:
             return apic.mime, apic.data
     if type(song) is mutagen.mp4.MP4:
@@ -57,8 +60,7 @@ def getcover(inputpath):
         picts = song.pictures
         if len(picts) > 0:
             return picts[0].mime, picts[0].data
-    else:
-        return ERROR_RET
+    return ERROR_RET
     
 if __name__ == '__main__':
     import sys
